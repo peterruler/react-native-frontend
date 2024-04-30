@@ -1,6 +1,6 @@
 - Tutorial: https://galaxies.dev/react-native-image-upload
 - have nodejs installed
-- `npm install --global expo-cli`
+- install expo cli on your machine: `npm install --global expo-cli`
 - old version: `expo init .`
 ```
 npx create-expo-app frontend -t expo-template-blank-typescript
