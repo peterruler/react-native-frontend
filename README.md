@@ -8,6 +8,10 @@ cd frontend
 npx expo install expo-image-picker
 npx expo install expo-file-system
 ```
+# install
+- `npm install` or with yarn installed `yarn`
+# Run
+- start using npm `npm start` or:
 - to start app `yarn start` then scan qr code with expo app (previously installed from app / play store)
 
 ![Screenshot 1](proof.jpg)
