@@ -6,4 +6,5 @@
 - to migrate use: `npx create-expo-app --template blank`
 - `yarn start`
 
-
+![Screenshot 1](proof.jpg)
+![Screenshot 2](load_mobileapp.jpg)
