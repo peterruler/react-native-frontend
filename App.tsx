@@ -82,7 +82,7 @@ const uploadImage = async (uri: string) => {
 		httpMethod: "POST",
 		uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
 	  });
-
+	  alert(response.body)
 	  /*
 	await FileSystem.uploadAsync('http://keepitnative.xyz:4000/image', uri, {
 		httpMethod: 'POST',
