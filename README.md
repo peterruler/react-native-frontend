@@ -1,5 +1,5 @@
 - Tutorial: https://galaxies.dev/react-native-image-upload
-
+- have nodejs installed
 - `npm install --global expo-cli`
 - old version: `expo init .`
 ```
