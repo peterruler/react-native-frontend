@@ -16,7 +16,7 @@ npx expo install expo-file-system
 
 # Run
 - start using npm `npm start` or:
-- to start app `yarn start` then scan qr code with expo app (previously installed from app / play store)
+- to start app `yarn start` then scan qr code with expo go app (previously installed from app / play store)
 
 ![Screenshot 1](proof.jpg)
 ![Screenshot 2](load_mobileapp.jpg)
