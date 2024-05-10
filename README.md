@@ -4,7 +4,7 @@
 - install expo cli on your machine: `npm install --global expo-cli`
 - old version: `expo init .`
 
-# initialize an new empty project (optional - migrate to new expo version)
+# initialize a new empty project (optional - migrate to new expo version)
 ```
 npx create-expo-app frontend -t expo-template-blank-typescript
 cd frontend
