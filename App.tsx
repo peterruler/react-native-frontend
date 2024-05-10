@@ -83,16 +83,6 @@ const uploadImage = async (uri: string) => {
 		uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
 	  });
 	  alert(response.body)
-	  /*
-	await FileSystem.uploadAsync('http://keepitnative.xyz:4000/image', uri, {
-		httpMethod: 'POST',
-		headers: {
-			"content-type":  "image/jpeg",
-		  },
-		uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-		fieldName: 'file'
-	});
-*/
 	setUploading(false);
 };
 
