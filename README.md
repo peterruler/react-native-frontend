@@ -1,4 +1,5 @@
-- Tutorial: https://galaxies.dev/react-native-image-upload
+# Intro and prerequisites
+- Tutorial with source code: https://galaxies.dev/react-native-image-upload
 
 - have nodejs installed -> https://nodejs.org/en/#download
 - install expo cli on your machine: `npm install --global expo-cli`
@@ -20,3 +21,6 @@ npx expo install expo-file-system
 
 ![Screenshot 1](proof.jpg)
 ![Screenshot 2](load_mobileapp.jpg)
+
+# Demo
+- https://snack.expo.dev/@petethegreat/react-native-frontend have Expo go app standard for react native app development and staging
