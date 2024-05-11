@@ -23,4 +23,4 @@ npx expo install expo-file-system
 ![Screenshot 2](load_mobileapp.jpg)
 
 # Demo
-- https://snack.expo.dev/@petethegreat/react-native-frontend have Expo go app standard for react native app development and staging
+- https://snack.expo.dev/@petethegreat/react-native-frontend have Expo go app installed, it is the standard for react native app development and staging
