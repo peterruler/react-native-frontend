@@ -17,10 +17,10 @@ npx expo install expo-file-system
 
 # Run
 - start using npm `npm start` or:
-- to start app `yarn start` then scan qr code with expo go app (previously installed from app / play store)
+- to start app `yarn start` then scan qr code with Expo Go App (previously installed from app / play store)
 
 ![Screenshot 1](proof.jpg)
 ![Screenshot 2](load_mobileapp.jpg)
 
 # Demo
-- https://snack.expo.dev/@petethegreat/react-native-frontend have Expo go app installed, it is the standard for react native app development and staging
+- https://snack.expo.dev/@petethegreat/react-native-frontend have Expo Go App installed, it is the standard for react native app development and staging
