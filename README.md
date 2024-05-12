@@ -5,7 +5,7 @@
 - install expo cli on your machine: `npm install --global expo-cli`
 - old version: `expo init .`
 
-# initialize a new empty project (optional - migrate to new expo version) replace generates files with content of App.tsx and app json in this repo.
+# initialize a new empty project (optional - migrate to new expo version) replace generates files with content of App.tsx and app json and add compileroption in package.json in this repo.
 ```
 npx create-expo-app frontend -t expo-template-blank-typescript
 cd frontend
