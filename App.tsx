@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 // SDK 54: use legacy API on native, provide web fallback below
-import * as FileSystem from 'expo-file-system/legacy';
+// Korrektur: In SDK 54 kein '/legacy' Suffix verwenden, stattdessen das Hauptmodul.
+import * as FileSystem from 'expo-file-system';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const isWeb = Platform.OS === 'web';
