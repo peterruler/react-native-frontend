@@ -46,23 +46,30 @@ Then, scan the QR code with the Expo Go App (previously installed from the App S
 
 Try the demo on Snack: [React Native Frontend Demo](https://snack.expo.dev/@petethegreat/react-native-frontend). Make sure you have the Expo Go App installed, as it is the standard for React Native app development and staging.
 
-## File System Platform Adapter
+## Storage Adapter (ohne expo-file-system)
 
-Dieses Projekt nutzt einen Adapter (`src/filesystemAdapter.ts`), der Zugriffe auf das Dateisystem zwischen Native (expo-file-system) und Web abstrahiert:
+Der Adapter (`src/filesystemAdapter.ts`) nutzt jetzt nur noch:
 
-- Native (iOS/Android): persistiert Dateien in `FileSystem.documentDirectory/images/`.
-- Web: speichert Referenzen/Data-URLs in `localStorage` unter dem Key `images`.
+- Web: `localStorage` (Data-URLs / URIs) unter dem Key `images`
+- Native: `AsyncStorage` (`@react-native-async-storage/async-storage`)
 
-Exponierte Funktionen:
+Es werden keine Dateien mehr ins echte Dateisystem kopiert; wir speichern ausschließlich Referenz-URIs oder Data-URLs. Das vereinfacht die Plattformgleichheit, hat aber Grenzen bei großen Dateien (Speicherverbrauch, Serialisierung).
+
+Exponierte Funktionen bleiben identisch:
 
 ```ts
-FSAdapter.listImages(): Promise<string[]>
-FSAdapter.saveImage(uri: string): Promise<string | undefined>
-FSAdapter.removeImage(uri: string): Promise<void>
-FSAdapter.uploadImage(uri: string, endpoint: string): Promise<string | undefined>
+FSAdapter.listImages()
+FSAdapter.saveImage(uri)
+FSAdapter.removeImage(uri)
+FSAdapter.uploadImage(uri, endpoint)
 ```
 
-Falls du später auf IndexedDB oder Cache Storage wechseln willst, kannst du nur die Web-Zweige im Adapter austauschen, ohne `App.tsx` erneut ändern zu müssen.
+Für spätere Erweiterungen (z.B. echtes Caching, größere Binärdaten) könntest du:
+
+- Native: wieder `expo-file-system` oder `expo-media-library` einführen
+- Web: auf IndexedDB (z.B. via `idb`) umstellen
+
+Der Code in `App.tsx` muss dafür nicht angepasst werden – nur der Adapter.
 
 ## Expo Upgrade Helper
 
