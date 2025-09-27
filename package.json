@@ -25,9 +25,13 @@
     "jsx": "react"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
+    "@babel/core": "7.26.0",
     "@types/react": "~19.1.14",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "react-refresh": "0.14.0"
+  },
+  "resolutions": {
+    "@babel/core": "7.26.0"
   },
   "private": true,
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
