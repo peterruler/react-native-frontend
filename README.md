@@ -49,8 +49,8 @@ yarn start --tunnel  # for physical devices
 
 ## 📷 Screenshots
 
-![Mobile App](proof.jpg)
-![Web Interface](load_mobileapp.jpg)
+<img src="proof.jpg" alt="Mobile App" width="50%">
+<img src="load_mobileapp.jpg" alt="Web Interface" width="50%">
 
 ## 🏗️ Architecture
 
