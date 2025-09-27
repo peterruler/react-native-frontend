@@ -1,25 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import {
-	Button,
-	Image,
-	View,
-	StyleSheet,
-	ActivityIndicator,
-	SafeAreaView,
-	Text,
-	FlatList
+  Button,
+  Image,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  SafeAreaView,
+  Text,
+  FlatList,
+  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+// SDK 54: use legacy API on native, provide web fallback below
+import * as FileSystem from 'expo-file-system/legacy';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const imgDir = FileSystem.documentDirectory + 'images/';
+const isWeb = Platform.OS === 'web';
+const imgDir = (FileSystem as any).documentDirectory
+  ? (FileSystem as any).documentDirectory + 'images/'
+  : 'images/';
+
+const WEB_STORAGE_KEY = 'images';
 
 const ensureDirExists = async () => {
-	const dirInfo = await FileSystem.getInfoAsync(imgDir);
-	if (!dirInfo.exists) {
-		await FileSystem.makeDirectoryAsync(imgDir, { intermediates: true });
-	}
+  if (isWeb) return; // no-op on web
+  const dirInfo = await (FileSystem as any).getInfoAsync(imgDir);
+  if (!dirInfo.exists) {
+    await (FileSystem as any).makeDirectoryAsync(imgDir, { intermediates: true });
+  }
 };
 
 export default function App() {
@@ -32,13 +40,23 @@ export default function App() {
 	}, []);
 
 	// Load images from file system
-	const loadImages = async () => {
-		await ensureDirExists();
-		const files = await FileSystem.readDirectoryAsync(imgDir);
-		if (files.length > 0) {
-			setImages(files.map((f) => imgDir + f));
-		}
-	};
+  const loadImages = async () => {
+    if (isWeb) {
+      try {
+        const stored = localStorage.getItem(WEB_STORAGE_KEY);
+        if (stored) {
+          const arr = JSON.parse(stored);
+          if (Array.isArray(arr)) setImages(arr);
+        }
+      } catch {}
+      return;
+    }
+    await ensureDirExists();
+    const files = await (FileSystem as any).readDirectoryAsync(imgDir);
+    if (files.length > 0) {
+      setImages(files.map((f: string) => imgDir + f));
+    }
+  };
 
 	// Select image from library or camera
 	const selectImage = async (useLibrary: boolean) => {
@@ -47,7 +65,8 @@ export default function App() {
 			mediaTypes: ImagePicker.MediaTypeOptions.Images,
 			allowsEditing: true,
 			aspect: [4, 3],
-			quality: 0.75
+			quality: 0.75,
+      base64: isWeb, // use base64 on web to persist/reload
 		};
 
 		if (useLibrary) {
@@ -59,37 +78,86 @@ export default function App() {
 
 		// Save image if not cancelled
 		if (!result.canceled) {
-			saveImage(result.assets[0].uri);
+      const asset = result.assets[0];
+      if (isWeb) {
+        // Prefer base64 data URL for persistence across reloads
+        const dataUrl = asset.base64
+          ? `data:${asset.type || 'image/jpeg'};base64,${asset.base64}`
+          : asset.uri;
+        saveImage(dataUrl);
+      } else {
+        saveImage(asset.uri);
+      }
 		}
 	};
 // Save image to file system
 const saveImage = async (uri: string) => {
-	await ensureDirExists();
-	const filename = new Date().getTime() + '.jpeg';
-	const dest = imgDir + filename;
-	await FileSystem.copyAsync({ from: uri, to: dest });
-	setImages([...images, dest]);
+  if (isWeb) {
+    const next = [...images, uri];
+    setImages(next);
+    try {
+      localStorage.setItem(WEB_STORAGE_KEY, JSON.stringify(next));
+    } catch {}
+    return;
+  }
+  await ensureDirExists();
+  const filename = new Date().getTime() + '.jpeg';
+  const dest = imgDir + filename;
+  await (FileSystem as any).copyAsync({ from: uri, to: dest });
+  setImages([...images, dest]);
 };
 
 // Upload image to server
 const uploadImage = async (uri: string) => {
-	setUploading(true);
-
-	let response = await FileSystem.uploadAsync('http://keepitnative.xyz:4000/image', uri, {
-		headers: {
-		  "content-type":  "image/jpeg",
-		},
-		httpMethod: "POST",
-		uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-	  });
-	  alert(response.body)
-	setUploading(false);
+  setUploading(true);
+  try {
+    if (isWeb) {
+      // Handle data URL or remote blob URL
+      let blob: Blob;
+      if (uri.startsWith('data:')) {
+        // convert data URL to Blob
+        const res = await fetch(uri);
+        blob = await res.blob();
+      } else {
+        const res = await fetch(uri);
+        blob = await res.blob();
+      }
+      const resp = await fetch('http://keepitnative.xyz:4000/image', {
+        method: 'POST',
+        headers: { 'content-type': 'image/jpeg' },
+        body: blob,
+      });
+      const text = await resp.text();
+      alert(text);
+    } else {
+      const response = await (FileSystem as any).uploadAsync(
+        'http://keepitnative.xyz:4000/image',
+        uri,
+        {
+          headers: { 'content-type': 'image/jpeg' },
+          httpMethod: 'POST',
+          uploadType: (FileSystem as any).FileSystemUploadType.BINARY_CONTENT,
+        }
+      );
+      alert(response.body);
+    }
+  } finally {
+    setUploading(false);
+  }
 };
 
 // Delete image from file system
 const deleteImage = async (uri: string) => {
-	await FileSystem.deleteAsync(uri);
-	setImages(images.filter((i) => i !== uri));
+  if (isWeb) {
+    const next = images.filter((i) => i !== uri);
+    setImages(next);
+    try {
+      localStorage.setItem(WEB_STORAGE_KEY, JSON.stringify(next));
+    } catch {}
+    return;
+  }
+  await (FileSystem as any).deleteAsync(uri);
+  setImages(images.filter((i) => i !== uri));
 };
 // Render image list item
 const renderItem = ({ item }: { item: any }) => {

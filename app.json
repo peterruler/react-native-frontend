@@ -21,16 +21,18 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
       [
         "expo-image-picker",
         {
-          "photosPermission": "Selecct and upload images.",
+          "photosPermission": "Select and upload images.",
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }
