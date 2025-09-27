@@ -13,23 +13,11 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 // SDK 54: use legacy API on native, provide web fallback below
 // Korrektur: In SDK 54 kein '/legacy' Suffix verwenden, stattdessen das Hauptmodul.
-import * as FileSystem from 'expo-file-system';
+// Dateisystemzugriffe über Adapter kapseln
+import { FSAdapter } from './src/filesystemAdapter';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const isWeb = Platform.OS === 'web';
-const imgDir = (FileSystem as any).documentDirectory
-  ? (FileSystem as any).documentDirectory + 'images/'
-  : 'images/';
-
-const WEB_STORAGE_KEY = 'images';
-
-const ensureDirExists = async () => {
-  if (isWeb) return; // no-op on web
-  const dirInfo = await (FileSystem as any).getInfoAsync(imgDir);
-  if (!dirInfo.exists) {
-    await (FileSystem as any).makeDirectoryAsync(imgDir, { intermediates: true });
-  }
-};
 
 export default function App() {
 	const [uploading, setUploading] = useState(false);
@@ -40,23 +28,10 @@ export default function App() {
 		loadImages();
 	}, []);
 
-	// Load images from file system
+  // Load images via adapter
   const loadImages = async () => {
-    if (isWeb) {
-      try {
-        const stored = localStorage.getItem(WEB_STORAGE_KEY);
-        if (stored) {
-          const arr = JSON.parse(stored);
-          if (Array.isArray(arr)) setImages(arr);
-        }
-      } catch {}
-      return;
-    }
-    await ensureDirExists();
-    const files = await (FileSystem as any).readDirectoryAsync(imgDir);
-    if (files.length > 0) {
-      setImages(files.map((f: string) => imgDir + f));
-    }
+    const list = await FSAdapter.listImages();
+    setImages(list);
   };
 
 	// Select image from library or camera
@@ -91,21 +66,12 @@ export default function App() {
       }
 		}
 	};
-// Save image to file system
+// Save image abstraction
 const saveImage = async (uri: string) => {
-  if (isWeb) {
-    const next = [...images, uri];
-    setImages(next);
-    try {
-      localStorage.setItem(WEB_STORAGE_KEY, JSON.stringify(next));
-    } catch {}
-    return;
+  const stored = await FSAdapter.saveImage(uri);
+  if (stored) {
+    setImages(prev => [...prev, stored]);
   }
-  await ensureDirExists();
-  const filename = new Date().getTime() + '.jpeg';
-  const dest = imgDir + filename;
-  await (FileSystem as any).copyAsync({ from: uri, to: dest });
-  setImages([...images, dest]);
 };
 
 // Upload image to server
@@ -131,16 +97,8 @@ const uploadImage = async (uri: string) => {
       const text = await resp.text();
       alert(text);
     } else {
-      const response = await (FileSystem as any).uploadAsync(
-        'http://keepitnative.xyz:4000/image',
-        uri,
-        {
-          headers: { 'content-type': 'image/jpeg' },
-          httpMethod: 'POST',
-          uploadType: (FileSystem as any).FileSystemUploadType.BINARY_CONTENT,
-        }
-      );
-      alert(response.body);
+      const body = await FSAdapter.uploadImage(uri, 'http://keepitnative.xyz:4000/image');
+      if (body) alert(body);
     }
   } finally {
     setUploading(false);
@@ -149,16 +107,8 @@ const uploadImage = async (uri: string) => {
 
 // Delete image from file system
 const deleteImage = async (uri: string) => {
-  if (isWeb) {
-    const next = images.filter((i) => i !== uri);
-    setImages(next);
-    try {
-      localStorage.setItem(WEB_STORAGE_KEY, JSON.stringify(next));
-    } catch {}
-    return;
-  }
-  await (FileSystem as any).deleteAsync(uri);
-  setImages(images.filter((i) => i !== uri));
+  await FSAdapter.removeImage(uri);
+  setImages(prev => prev.filter(i => i !== uri));
 };
 // Render image list item
 const renderItem = ({ item }: { item: any }) => {
